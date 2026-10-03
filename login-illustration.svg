@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 500" role="img" aria-labelledby="title desc">
+  <title id="title">A calm, focused workday</title>
+  <desc id="desc">A person works on a laptop among teal and orange plants, with a paper airplane and small geometric decorations.</desc>
+  <defs>
+    <linearGradient id="blob" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f1edfb"/><stop offset="1" stop-color="#faf1ec"/></linearGradient>
+    <linearGradient id="shirt" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ef8a5e"/><stop offset="1" stop-color="#df624d"/></linearGradient>
+  </defs>
+  <path d="M103 157C128 78 218 47 306 58c91 11 174 0 230 64 51 58 31 178-9 244-46 74-137 73-241 66-95-6-161-6-198-78-31-60-12-137 15-197Z" fill="url(#blob)"/>
+  <circle cx="158" cy="96" r="5" fill="#efa35e"/><path d="m145 127 11 11-11 11-11-11z" fill="#42a99c"/><path d="M500 122h18m-9-9v18" stroke="#ed9b66" stroke-width="4" stroke-linecap="round"/>
+  <path d="m542 78 13 24-27-6z" fill="#ed9b66"/><circle cx="520" cy="195" r="4" fill="#6c50a3"/>
+  <g transform="translate(498 80) rotate(-8)">
+    <path d="m0 22 92-20-35 83-13-31L0 22Z" fill="#fff" stroke="#7658ad" stroke-width="3" stroke-linejoin="round"/>
+    <path d="m0 22 44 32 13 31-1-40L0 22Z" fill="#d8caef" stroke="#7658ad" stroke-width="2" stroke-linejoin="round"/>
+    <path d="m56 43 36-41-49 52" fill="#eee9f8" stroke="#7658ad" stroke-width="2" stroke-linejoin="round"/>
+  </g>
+  <ellipse cx="341" cy="437" rx="224" ry="17" fill="#e5ddf1"/>
+
+  <!-- Teal leafy plant -->
+  <g stroke="#367f75" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M133 390c7-82 5-139-12-194M142 385c-1-63 21-120 45-159M129 337c-23-35-36-47-57-55M137 308c-11-44-10-62 0-91M146 348c24-33 39-45 63-56" fill="none"/>
+    <path d="M120 229c-35-17-40-48-20-72 34 11 45 39 20 72Z" fill="#54b3a2"/>
+    <path d="M121 194c-28-29-20-57 7-72 27 22 26 51-7 72Z" fill="#75c4ad"/>
+    <path d="M176 252c-7-38 14-58 45-52 4 34-13 53-45 52Z" fill="#318f82"/>
+    <path d="M82 292c-37-3-54-28-43-57 35-1 53 21 43 57Z" fill="#85cbb7"/>
+    <path d="M167 303c7-36 33-49 58-32-7 33-27 47-58 32Z" fill="#4ca798"/>
+    <path d="M100 276c-4-31 13-51 41-49 8 30-7 48-41 49Z" fill="#54b3a2"/>
+  </g>
+  <path d="m94 377 88 0-11 52c-2 9-8 14-18 14h-34c-10 0-16-5-18-14l-7-52Z" fill="#e99963"/>
+  <path d="M94 377h88v12H94z" fill="#efb27b"/>
+  <path d="M108 400h57" stroke="#f5c59c" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Warm orange plant -->
+  <g stroke="#a9674f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M547 392c-5-74 0-131 18-184M538 382c-14-59-40-105-70-141M555 348c24-28 41-39 66-43M550 304c4-33 15-57 31-74" fill="none"/>
+    <path d="M564 240c-3-37 18-57 48-50 2 34-16 52-48 50Z" fill="#ef9a65"/>
+    <path d="M488 260c-34-16-40-46-18-71 33 11 44 39 18 71Z" fill="#4a9e8e"/>
+    <path d="M621 321c-7-33 10-55 39-54 11 31-4 50-39 54Z" fill="#e98557"/>
+    <path d="M532 307c-31-24-30-54-3-73 30 20 33 48 3 73Z" fill="#7ab9a3"/>
+  </g>
+  <path d="m514 377 91 0-10 55c-2 8-8 13-18 13h-36c-10 0-16-5-18-13l-9-55Z" fill="#5267a8"/>
+  <path d="M514 377h91v12h-91z" fill="#7181bb"/>
+
+  <!-- Chair -->
+  <path d="M261 275c-20 0-34 14-34 34v76h122v-76c0-20-14-34-34-34h-54Z" fill="#dfd6ee" stroke="#7054a1" stroke-width="4"/>
+  <path d="M267 383v34m44-34v34m-61 0h77" stroke="#7054a1" stroke-width="5" stroke-linecap="round"/>
+  <path d="M236 324h105" stroke="#b7a4d5" stroke-width="4"/>
+
+  <!-- Seated person -->
+  <path d="M278 323c-4 28 6 47 31 58l53 22c15 6 27 0 32-13 4-12-2-23-16-28l-39-15-19-44-42 20Z" fill="#293252"/>
+  <path d="m373 383 45 13c15 4 21 16 16 27-5 12-17 17-31 12l-55-19-21-12 14-26 32 5Z" fill="#39436b"/>
+  <path d="m352 417 48 18c12 5 17 14 13 22-4 8-14 10-26 6l-52-19-11-11 10-20 18 4Z" fill="#f0a16b"/>
+  <path d="M313 257c-5-20 3-39 20-48 17-10 42-5 54 11l22 45-47 41-48-49Z" fill="url(#shirt)"/>
+  <path d="M319 271c-10 25-18 50-15 69 2 12 13 18 26 12l43-26-11-46-43-9Z" fill="#ee8a5e"/>
+  <path d="M359 269c14 13 25 30 34 43 6 8 18 10 25 3 7-7 6-17-1-25l-35-42-23 21Z" fill="#f1a071"/>
+  <path d="M368 204c2-28-15-47-41-47-24 1-39 18-37 42 2 25 19 40 42 38 20-2 34-15 36-33Z" fill="#edb08c"/>
+  <path d="M291 202c-13-17-7-41 7-52 14-12 39-15 57-5 18 10 26 27 20 46-7-12-20-21-32-23-13 15-31 23-52 22Z" fill="#342747"/>
+  <path d="M298 213c7 5 12 5 17 1" fill="none" stroke="#8a5149" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="325" cy="208" r="2.6" fill="#382b3b"/><circle cx="349" cy="205" r="2.6" fill="#382b3b"/>
+  <path d="M312 241c12 7 27 5 38-5l10 22-32 25-22-17 6-25Z" fill="#e8a181"/>
+
+  <!-- Laptop held in front -->
+  <path d="M306 288c2-6 7-10 13-10h89c6 0 10 4 12 10l12 68H294l12-68Z" fill="#3f3571"/>
+  <path d="M316 287h91l10 54h-111l10-54Z" fill="#b8d9d0"/>
+  <path d="m292 353 145 0-13 14H305l-13-14Z" fill="#7760a7"/>
+  <circle cx="361" cy="315" r="13" fill="#fff" opacity=".84"/>
+  <path d="m355 315 5 5 9-11" fill="none" stroke="#5aa99a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M269 281c13 8 25 18 35 32" fill="none" stroke="#f0a16b" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- Small ground details -->
+  <path d="M215 436h42m205 0h43" stroke="#b5a5cf" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="230" cy="432" r="4" fill="#e98f5f"/><circle cx="452" cy="432" r="4" fill="#51a89a"/>
+</svg>

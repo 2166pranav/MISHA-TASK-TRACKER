@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Tracker | Profile Settings</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="features.css">
+  <script src="theme.js"></script>
+</head>
+<body data-tracker-view="settings">
+  <aside class="sidebar">
+    <a href="dashboard.html" class="sidebar-brand"><span class="material-icons brand-icon">check_circle</span><h2>Tasker</h2></a>
+    <ul class="sidebar-nav">
+      <li><a href="dashboard.html"><span class="material-icons">dashboard</span> Dashboard</a></li>
+      <li><a href="tasks.html?scope=today"><span class="material-icons">today</span> Today</a></li>
+      <li><a href="tasks.html?scope=upcoming"><span class="material-icons">upcoming</span> Upcoming</a></li>
+      <li><a href="tasks.html"><span class="material-icons">task</span> All Tasks</a></li>
+      <li><a href="calendar.html"><span class="material-icons">calendar_today</span> Calendar</a></li>
+      <li><a href="group-tasks.html"><span class="material-icons">groups</span> Group Tasks</a></li>
+      <li><a href="history.html"><span class="material-icons">history</span> History</a></li>
+      <li><a href="settings.html" class="active" aria-current="page"><span class="material-icons">settings</span> Settings</a></li>
+    </ul>
+    <div class="sidebar-bottom"><a href="#" id="themeToggle"><span class="material-icons">dark_mode</span> Theme</a></div>
+  </aside>
+
+  <main class="main-content">
+    <header class="dashboard-header">
+      <div class="search-bar"><span class="material-icons">manage_accounts</span><span>Profile settings</span></div>
+      <div class="header-actions"><a href="settings.html" class="user-profile" title="Profile settings"><img src="/assets/default-avatar.svg" alt="User profile picture"><span>User</span></a></div>
+    </header>
+
+    <div class="dashboard-container settings-container">
+      <div class="dashboard-greeting"><div><h1>Profile Settings</h1><p>Manage your account, profile picture, and local task data.</p></div></div>
+
+      <section class="settings-section profile-settings-section">
+        <h2>Personal details</h2>
+        <form id="profileForm">
+          <div class="profile-editor-header">
+            <img id="profileAvatarPreview" src="/assets/default-avatar.svg" alt="Profile picture preview">
+            <div><strong id="profileDisplayName" data-profile-name>User</strong><p>PNG, JPEG or WebP · maximum 5 MB</p></div>
+            <label for="profileAvatarFile" class="btn-secondary avatar-upload-label"><span class="material-icons">photo_camera</span> Change photo</label>
+            <input id="profileAvatarFile" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+          </div>
+          <div class="profile-form-grid">
+            <div class="form-group"><label for="profileName">Name</label><input class="form-control" id="profileName" name="name" type="text" minlength="2" maxlength="80" autocomplete="name" required></div>
+            <div class="form-group"><label for="profileEmail">Email</label><input class="form-control" id="profileEmail" name="email" type="email" maxlength="254" autocomplete="email" required></div>
+          </div>
+          <div class="profile-password-heading"><h3>Change password</h3><p>Leave these fields blank if you do not want to change it. A new password must be at least 10 characters.</p></div>
+          <div class="profile-form-grid">
+            <div class="form-group"><label for="currentPassword">Current password</label><input class="form-control" id="currentPassword" name="currentPassword" type="password" autocomplete="current-password"></div>
+            <div class="form-group"><label for="newPassword">New password</label><input class="form-control" id="newPassword" name="newPassword" type="password" minlength="10" maxlength="128" autocomplete="new-password"></div>
+            <div class="form-group"><label for="confirmNewPassword">Confirm new password</label><input class="form-control" id="confirmNewPassword" name="confirmNewPassword" type="password" minlength="10" maxlength="128" autocomplete="new-password"></div>
+          </div>
+          <div class="profile-form-footer"><p id="profileStatus" class="profile-status" role="status" aria-live="polite"></p><button class="btn-primary" id="saveProfileBtn" type="submit"><span class="material-icons">save</span> Save profile</button></div>
+        </form>
+      </section>
+
+      <section class="settings-section">
+        <h2>Preferences</h2>
+        <div class="settings-row"><div class="settings-info"><h3>Dark mode</h3><p>Toggle between light and dark themes. This preference is stored in a first-party cookie.</p></div><button class="btn-secondary" id="toggleThemeBtn" type="button">Toggle Theme</button></div>
+      </section>
+
+      <section class="settings-section">
+        <h2>Account</h2>
+        <div class="settings-row"><div class="settings-info"><h3>Sign out</h3><p>End this session on this device.</p></div><button class="btn-secondary" id="signOutBtn" type="button">Sign Out</button></div>
+      </section>
+
+      <section class="settings-section">
+        <h2>Data management</h2>
+        <div class="settings-row"><div class="settings-info"><h3>Export data</h3><p>Download a JSON backup of your profile, tasks, folders, history, group members, and Karma.</p></div><button class="btn-primary" id="exportDataBtn" type="button">Export JSON</button></div>
+        <div class="settings-row"><div class="settings-info"><h3>Clear workspace data</h3><p class="danger-copy">Permanently delete this account's tasks, folders, history, group members, and Karma. Your account remains active.</p></div><button class="btn-danger" id="clearDataBtn" type="button">Clear workspace</button></div>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+  <script src="tracker-data.js"></script>
+  <script src="profile.js"></script>
+  <script src="reminders.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tasker | All Tasks</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="features.css">
+  <script src="theme.js"></script>
+</head>
+<body data-tracker-view="tasks">
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-brand"><span class="material-icons brand-icon">check_circle</span><h2>Tasker</h2></a>
+    <ul class="sidebar-nav">
+      <li><a href="dashboard.html"><span class="material-icons">dashboard</span> Dashboard</a></li>
+      <li><a href="tasks.html" class="active"><span class="material-icons">task</span> All Tasks</a></li>
+      <li><a href="calendar.html"><span class="material-icons">calendar_today</span> Calendar</a></li>
+      <li><a href="group-tasks.html"><span class="material-icons">groups</span> Group Tasks</a></li>
+      <li><a href="history.html"><span class="material-icons">history</span> History</a></li>
+      <li><a href="settings.html"><span class="material-icons">settings</span> Settings</a></li>
+    </ul>
+    <div class="sidebar-bottom"><a href="#" id="themeToggle"><span class="material-icons">dark_mode</span> Theme</a></div>
+  </aside>
+
+  <main class="main-content">
+    <header class="dashboard-header">
+      <label class="search-bar"><span class="material-icons">search</span><input type="search" id="filterTask" placeholder="Search tasks…" aria-label="Search tasks"></label>
+      <div class="header-actions">
+        <div class="view-menu-wrap">
+          <button type="button" class="view-menu-button" id="viewMenuBtn" aria-expanded="false" aria-controls="viewMenuPanel"><span class="material-icons">settings</span> View <span class="material-icons view-menu-chevron">expand_more</span></button>
+          <div class="view-menu-panel" id="viewMenuPanel" hidden>
+            <section class="view-menu-section"><h3>Layout</h3><div class="view-layout-options" role="group" aria-label="Layout">
+              <button type="button" id="viewListBtn" class="view-layout-option active" data-layout="list"><span class="material-icons">view_list</span> List</button>
+              <button type="button" id="viewBoardBtn" class="view-layout-option" data-layout="board"><span class="material-icons">view_kanban</span> Board</button>
+              <button type="button" id="viewCalendarBtn" class="view-layout-option" data-layout="calendar"><span class="material-icons">calendar_month</span> Calendar</button>
+            </div></section>
+            <section class="view-menu-section calendar-view-settings"><h3>Calendar view</h3><div class="calendar-range-options" role="group" aria-label="Calendar range">
+              <button type="button" id="viewWeekBtn" class="calendar-range-option" aria-pressed="false">Week</button><button type="button" id="viewMonthBtn" class="calendar-range-option active" aria-pressed="true">Month</button>
+            </div><label class="future-occurrences-toggle"><span>Future occurrences</span><input type="checkbox" id="showFutureOccurrences" checked><span class="toggle-switch" aria-hidden="true"></span></label></section>
+            <section class="view-menu-section"><h3>Filter by</h3><div class="view-filter-grid">
+              <div class="form-group"><label for="filterAssignee">Assignee</label><select id="filterAssignee" class="form-control"><option value="">All assignees</option></select></div>
+              <div class="form-group"><label for="filterDueDate">Due date</label><select id="filterDueDate" class="form-control"><option value="">Any due date</option><option value="today">Today</option><option value="tomorrow">Tomorrow</option><option value="this-week">This week</option><option value="overdue">Overdue</option><option value="none">No due date</option><option value="custom">Choose date…</option></select><input type="date" id="filterDueDateCustom" class="form-control custom-date-filter" aria-label="Choose a due date" hidden></div>
+              <div class="form-group"><label for="filterPriority">Priority</label><select id="filterPriority" class="form-control"><option value="">All priorities</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>
+              <div class="form-group"><label for="filterLabel">Label</label><select id="filterLabel" class="form-control"><option value="">All labels</option></select></div>
+              <div class="form-group"><label for="filterStatus">Status</label><select id="filterStatus" class="form-control"><option value="">All tasks</option><option value="upcoming">Upcoming</option><option value="past-due">Past due</option><option value="completed">Completed</option></select></div>
+            </div><button type="button" id="clearFilterBtn" class="btn-secondary clear-view-filters">Clear filters</button></section>
+          </div>
+        </div>
+        <button class="btn-primary" id="openAddModalBtn"><span class="material-icons">add</span> Add Task</button><a href="settings.html" class="user-profile" title="Profile settings"><img src="/assets/default-avatar.svg" alt=""><span>Guest</span></a>
+      </div>
+    </header>
+
+    <div class="dashboard-container">
+      <div class="dashboard-greeting task-page-heading">
+        <div><h1>All Tasks</h1><p>Plan, prioritize, and make progress one step at a time.</p></div>
+        <span class="active-layout-label" id="activeLayoutLabel">List view</span>
+      </div>
+
+      <section class="productivity-strip" aria-label="Daily progress and karma">
+        <div class="daily-progress"><div class="progress-ring" id="dailyProgressRing"><span id="dailyProgressPercent">0%</span></div><div><strong id="dailyProgressSummary">0 of 0 due today completed</strong><span id="dailyTasksLeft">No tasks left for today</span></div></div>
+        <div class="karma-panel"><span class="material-icons">stars</span><div><strong id="karmaTotal">0</strong><span>Karma points</span></div></div>
+      </section>
+
+      <section class="folder-toolbar" aria-label="Task folders">
+        <div><h2>Folders</h2><p>Group tasks into your own collections.</p></div>
+        <form id="folderForm" class="folder-create"><input id="newFolderName" class="form-control" maxlength="32" placeholder="Create a folder" aria-label="New folder name"><button class="btn-secondary" type="submit"><span class="material-icons">create_new_folder</span> Add folder</button></form>
+      </section>
+      <div id="folderChips" class="folder-chips"></div>
+
+      <div class="status-tabs" role="tablist" aria-label="Task status filters">
+        <button class="status-tab active" data-status="all">All <span id="count-all">0</span></button>
+        <button class="status-tab" data-status="upcoming">Upcoming <span id="count-upcoming">0</span></button>
+        <button class="status-tab" data-status="past-due">Past Due <span id="count-past-due">0</span></button>
+        <button class="status-tab" data-status="completed">Completed <span id="count-completed">0</span></button>
+      </div>
+
+      <section class="card" id="listViewContainer">
+        <div class="card-header"><h3>Your Tasks</h3><span class="muted-hint"><span class="material-icons">push_pin</span> Pinned tasks stay at the top</span></div>
+        <ul class="recent-tasks-list task-list" id="taskList" aria-live="polite"></ul>
+      </section>
+      <div class="kanban-board" id="boardViewContainer" hidden>
+        <section class="kanban-column"><div class="kanban-header">To Do</div><div class="kanban-tasks" id="kanban-todo" data-status="todo"></div></section>
+        <section class="kanban-column"><div class="kanban-header">In Progress</div><div class="kanban-tasks" id="kanban-in-progress" data-status="in-progress"></div></section>
+        <section class="kanban-column"><div class="kanban-header">Done</div><div class="kanban-tasks" id="kanban-done" data-status="done"></div></section>
+      </div>
+      <section class="task-calendar-view" id="calendarViewContainer" hidden aria-label="Task calendar">
+        <div class="task-calendar-toolbar"><button type="button" class="icon-btn" id="taskCalendarPrev" aria-label="Previous range"><span class="material-icons">chevron_left</span></button><strong id="taskCalendarRangeLabel"></strong><button type="button" class="icon-btn" id="taskCalendarNext" aria-label="Next range"><span class="material-icons">chevron_right</span></button><button type="button" class="btn-secondary" id="taskCalendarToday">Today</button></div>
+        <div class="task-calendar-grid" id="taskCalendarGrid" aria-live="polite"></div>
+      </section>
+      <div class="clear-task-row" id="clearTaskRow"><button class="btn-secondary" id="clearTasks"><span class="material-icons">delete_sweep</span> Clear all tasks</button></div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="addModal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+    <div class="modal-box"><div class="modal-header"><span id="addModalTitle">Add new task</span><button class="icon-btn modal-close-icon" data-close="addModal" aria-label="Close"><span class="material-icons">close</span></button></div>
+      <form id="taskForm">
+        <div class="form-group"><label for="task">Task name</label><div class="voice-input-wrap"><span class="activity-title-icon" id="addActivityIconPreview" aria-hidden="true">✅</span><input type="text" id="task" class="form-control" placeholder="What needs to be done? !30m" required><button type="button" class="voice-btn" id="voiceInputBtn" aria-label="Dictate task" title="Dictate task"><span class="material-icons">mic</span></button></div><small class="field-hint" id="voiceHint">Voice input works in supported browsers (usually Chrome). Add !30m or !1h to set duration.</small><div id="addDurationPreview" class="schedule-pills"></div></div>
+        <div class="form-group"><label for="taskSchedule">Schedule in plain language</label><input type="text" id="taskSchedule" class="form-control" placeholder="e.g., tomorrow at 7:30, every other day at 7:30"><small class="field-hint">Dates and times become calendar blocks. Recurrences are supported.</small><div id="addSchedulePreview" class="schedule-pills" aria-live="polite"></div></div>
+        <div class="form-row"><div class="form-group"><label for="priority">Priority</label><select id="priority" class="form-control" required><option value="" disabled selected>Select</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div><div class="form-group"><label for="category">Category</label><select id="category" class="form-control" required><option value="" disabled selected>Select</option><option>Work</option><option>Personal</option><option>Shopping</option><option>Health</option><option>Other</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label for="dueDate">Due date</label><input type="date" id="dueDate" class="form-control" required></div><div class="form-group"><label for="folder">Folder</label><select id="folder" class="form-control"><option value="">No folder</option></select></div></div>
+        <div class="form-group"><label for="reminder">Reminder</label><select id="reminder" class="form-control"><option value="0">No reminder</option><option value="5">5 minutes before</option><option value="10">10 minutes before</option><option value="15">15 minutes before</option><option value="30">30 minutes before</option><option value="60">1 hour before</option></select><div id="addReminderPreview" class="schedule-pills"></div></div>
+        <div class="form-group"><label for="description">Description</label><div class="description-input-wrap"><textarea id="description" class="form-control" placeholder="Add details…"></textarea><button type="button" class="voice-btn description-voice-btn" id="descriptionVoiceBtn" aria-label="Dictate task description" title="Dictate description"><span class="material-icons">mic</span></button></div><small class="field-hint" id="descriptionVoiceHint" aria-live="polite">Click the microphone to dictate description text.</small></div>
+        <div class="modal-footer"><button type="button" class="btn-secondary" data-close="addModal">Cancel</button><button type="submit" class="btn-primary">Add task</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+    <div class="modal-box"><div class="modal-header"><span id="editModalTitle">Edit task</span><button class="icon-btn modal-close-icon" data-close="editModal" aria-label="Close"><span class="material-icons">close</span></button></div>
+      <form id="editForm">
+        <div class="form-group"><label for="editTask">Task name</label><div class="activity-title-input"><span class="activity-title-icon" id="editActivityIconPreview" aria-hidden="true">✅</span><input type="text" id="editTask" class="form-control" required></div><small class="field-hint">Add !30m or !1h to set a duration.</small><div id="editDurationPreview" class="schedule-pills"></div></div>
+        <div class="form-group"><label for="editSchedule">Schedule in plain language</label><input type="text" id="editSchedule" class="form-control" placeholder="e.g., tomorrow at 7:30, every other day at 7:30"><div id="editSchedulePreview" class="schedule-pills" aria-live="polite"></div></div>
+        <div class="form-row"><div class="form-group"><label for="editPriority">Priority</label><select id="editPriority" class="form-control"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div><div class="form-group"><label for="editCategory">Category</label><select id="editCategory" class="form-control"><option>Work</option><option>Personal</option><option>Shopping</option><option>Health</option><option>Other</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label for="editDueDate">Due date</label><input type="date" id="editDueDate" class="form-control" required></div><div class="form-group"><label for="editFolder">Folder</label><select id="editFolder" class="form-control"><option value="">No folder</option></select></div></div>
+        <div class="form-group"><label for="editReminder">Reminder</label><select id="editReminder" class="form-control"><option value="0">No reminder</option><option value="5">5 minutes before</option><option value="10">10 minutes before</option><option value="15">15 minutes before</option><option value="30">30 minutes before</option><option value="60">1 hour before</option></select><div id="editReminderPreview" class="schedule-pills"></div></div>
+        <div class="form-group"><label for="editDescription">Description</label><div class="description-input-wrap"><textarea id="editDescription" class="form-control"></textarea><button type="button" class="voice-btn description-voice-btn" id="editDescriptionVoiceBtn" aria-label="Dictate task description" title="Dictate description"><span class="material-icons">mic</span></button></div><small class="field-hint" id="editDescriptionVoiceHint" aria-live="polite">Click the microphone to dictate description text.</small></div>
+        <div class="form-group subtasks-editor"><label>Sub-tasks</label><ul id="editSubtaskList" class="edit-subtask-list"></ul><div class="subtask-entry"><input type="text" id="newSubtaskInput" class="form-control" placeholder="Add a sub-task"><button type="button" id="addSubtaskBtn" class="btn-secondary" aria-label="Add sub-task"><span class="material-icons">add</span></button></div></div>
+        <div class="modal-footer"><button type="button" class="btn-secondary" data-close="editModal">Cancel</button><button type="submit" class="btn-primary">Save changes</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteTitle"><div class="modal-box confirm-box"><div class="modal-header"><span id="deleteTitle">Delete task?</span></div><p>This task will be removed from your list.</p><div class="modal-footer"><button type="button" class="btn-secondary" data-close="deleteModal">Cancel</button><button type="button" class="btn-danger" id="modalAgreeBtn">Delete task</button></div></div></div>
+  <div id="toast-container" aria-live="polite"></div>
+  <script src="tracker-data.js"></script>
+  <script src="schedule-parser.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="task.js"></script>
+  <script src="reminders.js"></script>
+</body>
+</html>

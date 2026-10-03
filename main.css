@@ -1,0 +1,107 @@
+.priority-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 5px;
+    margin-left: 20px;
+}
+.priority-badge.low {
+    background-color: #6BAB90;
+    color: #FFF;
+}
+.priority-badge.medium {
+    background-color: #D16014;
+    color: #FFF;
+}
+.priority-badge.high {
+    background-color: #F25757;
+    color: #FFF;
+}
+
+.clearfix {
+    clear: both;
+}
+
+
+/* Align INDEX.HTML UI with home.css */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap");
+
+body {
+  background-color: #f4f6f2 !important;
+  background-image: linear-gradient(rgba(52, 93, 72, .035) 1px, transparent 1px) !important;
+  background-size: 100% 36px !important;
+  font-family: "DM Sans", sans-serif !important;
+}
+
+.card {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+  border: 1px solid #dfe5dd;
+}
+
+.btn {
+  background-color: #345d48 !important; /* var(--green) */
+  font-weight: 700;
+  border-radius: 5px;
+  text-transform: none;
+}
+.btn:hover {
+  background-color: #274a38 !important;
+}
+
+.card-title {
+  font-family: "Newsreader", Georgia, serif !important;
+  font-size: 32px !important;
+  font-weight: 500 !important;
+  color: #222923 !important;
+}
+
+.tracker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.tracker-account {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 13px;
+  color: #737c75;
+}
+
+.tracker-home {
+  color: #345d48;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.collection-item {
+  border-color: #dfe5dd !important;
+}
+
+.modal {
+  border-radius: 8px !important;
+}
+[data-theme="dark"] body {
+  background-color: #121212 !important;
+  color: #e0e0e0 !important;
+}
+[data-theme="dark"] .card {
+  background-color: #1e1e1e;
+  border-color: #333333;
+}
+[data-theme="dark"] .card-title, [data-theme="dark"] .card-content {
+  color: #e0e0e0 !important;
+}
+[data-theme="dark"] input, [data-theme="dark"] textarea, [data-theme="dark"] select {
+  color: #e0e0e0 !important;
+}
+[data-theme="dark"] .collection-item {
+  background-color: #1e1e1e !important;
+  border-color: #333 !important;
+}
+[data-theme="dark"] .modal {
+  background-color: #1e1e1e !important;
+  color: #e0e0e0 !important;
+}

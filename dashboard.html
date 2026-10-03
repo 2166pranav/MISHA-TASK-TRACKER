@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Tracker | Dashboard</title>
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="features.css">
+  <script src="theme.js"></script>
+</head>
+<body data-tracker-view="dashboard">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-brand" style="text-decoration: none; color: inherit;">
+      <span class="material-icons brand-icon">check_circle</span>
+      <h2>Tasker</h2>
+    </a>
+    <ul class="sidebar-nav">
+      <li><a href="dashboard.html" class="active"><span class="material-icons">dashboard</span> Dashboard</a></li>
+      <li><a href="tasks.html"><span class="material-icons">task</span> All Tasks</a></li>
+      <li><a href="calendar.html"><span class="material-icons">calendar_today</span> Calendar</a></li>
+      <li><a href="group-tasks.html"><span class="material-icons">groups</span> Group Tasks</a></li>
+      <li><a href="history.html"><span class="material-icons">history</span> History</a></li>
+      <li><a href="settings.html"><span class="material-icons">settings</span> Settings</a></li>
+    </ul>
+    <div class="sidebar-bottom">
+      <a href="#" id="themeToggle"><span class="material-icons">dark_mode</span> Theme</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    
+    <!-- Topbar -->
+    <header class="dashboard-header">
+      <div class="search-bar">
+        <span class="material-icons">search</span>
+        <input type="text" placeholder="Search tasks...">
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn"><span class="material-icons">notifications</span></button>
+        <a href="settings.html" class="user-profile" title="Profile settings">
+          <img src="/assets/default-avatar.svg" alt="User">
+          <span>Guest</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-container">
+      
+      <!-- Greeting -->
+      <div class="dashboard-greeting">
+        <div>
+          <h1 id="greetingText">Good morning, Guest!</h1>
+          <p>Here's what's happening with your tasks today.</p>
+        </div>
+        <a href="tasks.html" class="btn-primary"><span class="material-icons">add</span> Add New Task</a>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-icons">format_list_bulleted</span></div>
+          <div class="stat-info">
+            <h3>Total Tasks</h3>
+            <p id="statTotal">0</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><span class="material-icons">check_circle</span></div>
+          <div class="stat-info">
+            <h3>Completed</h3>
+            <p id="statCompleted">0</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange"><span class="material-icons">pending_actions</span></div>
+          <div class="stat-info">
+            <h3>In Progress</h3>
+            <p id="statInProgress">0</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><span class="material-icons">warning</span></div>
+          <div class="stat-info">
+            <h3>Overdue</h3>
+            <p id="statOverdue">0</p>
+          </div>
+        </div>
+      </div>
+
+      <section class="home-productivity" aria-label="Daily progress and Karma">
+        <div class="productivity-strip">
+          <div class="daily-progress"><div class="progress-ring" id="dailyProgressRing"><span id="dailyProgressPercent">0%</span></div><div><strong id="dailyProgressSummary">0 of 0 due today completed</strong><span id="dailyTasksLeft">No tasks left for today</span></div></div>
+          <div class="karma-panel"><span class="material-icons">stars</span><div><strong id="karmaTotal">0</strong><span>Karma points</span></div></div>
+        </div>
+      </section>
+
+      <!-- Charts & List Grid -->
+      <div class="dashboard-grid-2">
+        
+        <!-- Chart Section -->
+        <div class="card chart-card">
+          <div class="card-header">
+            <h3>Task Activity (Last 7 Days)</h3>
+          </div>
+          <div class="card-body">
+            <canvas id="activityChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Recent Tasks Section -->
+        <div class="card recent-tasks-card">
+          <div class="card-header">
+            <h3>High Priority / Due Soon</h3>
+            <a href="tasks.html" class="link-btn">View All</a>
+          </div>
+          <div class="card-body">
+            <ul class="recent-tasks-list" id="recentTasksList">
+              <!-- JS will populate this -->
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <script src="tracker-data.js"></script>
+  <script src="reminders.js"></script>
+  <script src="home.js"></script>
+</body>
+</html>

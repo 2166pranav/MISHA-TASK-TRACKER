@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tasker | Group Tasks</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css"><link rel="stylesheet" href="features.css"><script src="theme.js"></script>
+</head>
+<body data-tracker-view="group">
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-brand"><span class="material-icons brand-icon">check_circle</span><h2>Tasker</h2></a>
+    <ul class="sidebar-nav">
+      <li><a href="dashboard.html"><span class="material-icons">dashboard</span> Dashboard</a></li>
+      <li><a href="tasks.html"><span class="material-icons">task</span> All Tasks</a></li>
+      <li><a href="calendar.html"><span class="material-icons">calendar_today</span> Calendar</a></li>
+      <li><a href="group-tasks.html" class="active" aria-current="page"><span class="material-icons">groups</span> Group Tasks</a></li>
+      <li><a href="history.html"><span class="material-icons">history</span> History</a></li>
+      <li><a href="settings.html"><span class="material-icons">settings</span> Settings</a></li>
+    </ul>
+    <div class="sidebar-bottom"><a href="#" id="themeToggle"><span class="material-icons">dark_mode</span> Theme</a></div>
+  </aside>
+
+  <main class="main-content">
+    <header class="dashboard-header">
+      <div class="search-bar group-topbar-label"><span class="material-icons">groups</span><span>Team workspace</span></div>
+      <div class="header-actions"><a href="tasks.html" class="btn-primary"><span class="material-icons">add</span> Add task</a><a href="settings.html" class="user-profile" title="Profile settings"><img src="/assets/default-avatar.svg" alt=""><span>Guest</span></a></div>
+    </header>
+
+    <div class="dashboard-container group-page-container">
+      <div class="dashboard-greeting group-page-heading">
+        <div><h1>Group Tasks</h1><p>Keep your team in the loop and organize shared work.</p></div>
+        <button type="button" class="btn-primary" id="addFriendsBtn"><span class="material-icons">person_add</span> Add Friends</button>
+      </div>
+
+      <section class="group-invite-note"><span class="material-icons" aria-hidden="true">info</span><p><strong>Workspace note</strong> — invitees are saved to this account on the local server. This prototype does not send email or share tasks across accounts.</p></section>
+
+      <section class="card group-members-card" aria-labelledby="groupMembersTitle">
+        <div class="card-header group-members-header"><div><h2 id="groupMembersTitle">Group Members</h2><p id="groupMembersSummary">People you have added to this workspace.</p></div><span class="group-member-count" id="groupMemberCount">0</span></div>
+        <ul class="group-members-list" id="groupMembersList" aria-live="polite"></ul>
+      </section>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="inviteModal" role="dialog" aria-modal="true" aria-labelledby="inviteModalTitle">
+    <div class="modal-box invite-modal-box">
+      <div class="modal-header"><span id="inviteModalTitle">Add friends</span><button type="button" class="icon-btn modal-close-icon" id="closeInviteModalBtn" aria-label="Close"><span class="material-icons">close</span></button></div>
+      <p class="invite-modal-description">Save an invitee by email or copy a workspace link. Email delivery is not configured.</p>
+      <form id="inviteForm">
+        <div class="form-group"><label for="inviteEmail">Email address</label><input id="inviteEmail" class="form-control" type="email" name="email" placeholder="name@example.com" autocomplete="email" required></div>
+        <div class="invite-modal-actions"><button type="button" class="btn-secondary" id="shareInviteLinkBtn"><span class="material-icons">link</span> Share Link</button><button type="submit" class="btn-primary" id="sendInviteBtn"><span class="material-icons">mail_outline</span> Send Invite</button></div>
+        <p class="invite-modal-note" id="inviteModalNote" role="status">Send Invite saves the email to this account's Group Members list; it does not send an email.</p>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+  <script src="tracker-data.js"></script><script src="group-tasks.js"></script><script src="reminders.js"></script>
+</body>
+</html>
