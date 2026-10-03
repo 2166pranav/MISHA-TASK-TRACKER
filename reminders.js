@@ -1,65 +1,101 @@
-/* Poll the local API while a tracker page is open; deadlines and penalties are recorded server-side. */
+/* Client-side reminder engine. Alerts run only while a Tasker page is open. */
 (() => {
   const data = window.TrackerData;
   if (!data) return;
-  let checking = false;
-  function container() {
-    let root = document.getElementById('toast-container');
-    if (!root) { root = document.createElement('div'); root.id = 'toast-container'; root.setAttribute('aria-live', 'polite'); document.body.appendChild(root); }
-    return root;
+  const SCHEDULE_GRACE_MS = 5 * 60 * 1000;
+
+  function getContainer() {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+      container = document.createElement('div'); container.id = 'toast-container';
+      container.setAttribute('aria-live', 'polite'); document.body.appendChild(container);
+    }
+    return container;
   }
   function chime() {
     try {
-      const Context = window.AudioContext || window.webkitAudioContext; if (!Context) return;
-      const context = new Context();
-      [740, 988].forEach((frequency, index) => {
-        const start = context.currentTime + index * 0.17; const oscillator = context.createOscillator(); const gain = context.createGain();
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const context = new AudioContext();
+      const playTone = (frequency, start) => {
+        const oscillator = context.createOscillator(); const gain = context.createGain();
         oscillator.type = 'sine'; oscillator.frequency.value = frequency;
-        gain.gain.setValueAtTime(0.0001, start); gain.gain.exponentialRampToValueAtTime(0.12, start + 0.025); gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.32);
-        oscillator.connect(gain); gain.connect(context.destination); oscillator.start(start); oscillator.stop(start + 0.34);
-      });
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.12, start + 0.025);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.32);
+        oscillator.connect(gain); gain.connect(context.destination);
+        oscillator.start(start); oscillator.stop(start + 0.34);
+      };
+      const start = context.currentTime;
+      playTone(740, start); playTone(988, start + 0.17);
       window.setTimeout(() => context.close().catch(() => {}), 800);
-    } catch (_) { /* Audio is best-effort. */ }
+    } catch (_) { /* Audio is best-effort; browser policy may block it. */ }
   }
   function showNotice(title, message, prominent = false) {
-    const item = document.createElement('div'); item.className = prominent ? 'toast task-reminder-toast' : 'toast';
-    if (!prominent) { item.textContent = message; container().appendChild(item); window.setTimeout(() => item.remove(), 6000); return; }
+    const item = document.createElement('div');
+    item.className = prominent ? 'toast task-reminder-toast' : 'toast';
+    if (!prominent) { item.textContent = message; getContainer().appendChild(item); window.setTimeout(() => item.remove(), 6000); return; }
     item.setAttribute('role', 'alert'); item.setAttribute('aria-live', 'assertive');
     const heading = document.createElement('strong'); heading.className = 'task-reminder-heading'; heading.textContent = title;
     const body = document.createElement('span'); body.className = 'task-reminder-message'; body.textContent = message;
     const actions = document.createElement('div'); actions.className = 'task-reminder-actions';
     const open = document.createElement('a'); open.href = 'calendar.html'; open.textContent = 'Open calendar';
-    const dismiss = document.createElement('button'); dismiss.type = 'button'; dismiss.textContent = 'Dismiss'; dismiss.addEventListener('click', () => item.remove());
-    actions.append(open, dismiss); item.append(heading, body, actions); container().appendChild(item); chime();
+    const dismiss = document.createElement('button'); dismiss.type = 'button'; dismiss.textContent = 'Dismiss'; dismiss.setAttribute('aria-label', 'Dismiss task reminder'); dismiss.addEventListener('click', () => item.remove());
+    actions.append(open, dismiss); item.append(heading, body, actions); getContainer().appendChild(item);
+    chime();
     window.setTimeout(() => item.remove(), 20000);
   }
-  async function checkReminders() {
-    if (checking || document.visibilityState === 'hidden') return;
-    checking = true;
-    try {
-      const result = await data.request('/api/reminders/check', { method: 'POST', body: '{}' });
-      const rewards = data.getRewards();
-      const oldKarma = Number(rewards.points) || 0;
-      rewards.points = Number(result.karma) || 0;
-      if (oldKarma !== rewards.points) window.dispatchEvent(new CustomEvent('tracker:karma-updated', { detail: { karma: rewards.points } }));
-      for (const event of result.events || []) {
-        const isPenalty = event.kind === 'penalty';
-        const isScheduled = event.kind === 'scheduled';
-        const title = isPenalty ? 'Karma update' : isScheduled ? 'Task scheduled now' : 'Task reminder';
-        const message = event.message || event.task || 'You have a task coming up.';
-        if (!isScheduled && window.Notification && window.Notification.permission === 'granted') {
-          try {
-            const notification = new window.Notification(title, { body: message, tag: `task-${event.task}-${event.date}-${event.kind}` });
-            notification.onclick = () => { window.focus(); window.location.href = 'calendar.html'; };
-          } catch (_) { showNotice(title, message, isScheduled || isPenalty); }
-        } else showNotice(title, message, isScheduled || isPenalty);
-      }
-      if ((result.events || []).some(event => event.kind === 'penalty')) await data.refresh();
-    } catch (error) {
-      if (error.status !== 401) console.warn('Reminder check could not reach the local server:', error.message);
-    } finally { checking = false; }
+  function dueAt(task, dateKey) {
+    if (!task.scheduleStart) return null;
+    const time = task.scheduleStart.slice(11, 16);
+    const value = new Date(`${dateKey}T${time}:00`);
+    return Number.isNaN(value.getTime()) ? null : value;
   }
-  data.ready.then(connected => { if (connected) checkReminders(); });
+  function checkReminders() {
+    const now = new Date();
+    const tasks = data.loadTasks(); let changed = false;
+    const penalties = data.applyMissedTaskPenalties(tasks, now);
+    if (penalties.length) {
+      try { window.dispatchEvent(new Event('tracker:karma-updated')); } catch (_) { /* UI event is a best-effort same-tab refresh. */ }
+    }
+    const today = data.todayKey(now);
+    const tomorrowDate = new Date(now); tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+    const tomorrow = data.todayKey(tomorrowDate);
+    for (const task of tasks) {
+      if (task.completed || task.status === 'done') continue;
+      task.remindersSent = Array.isArray(task.remindersSent) ? task.remindersSent : [];
+      // Alert when the scheduled start crosses the checker interval. A five-minute
+      // grace also handles a tab that the browser briefly throttles in the background.
+      if (task.scheduleStart) {
+        const scheduledAt = dueAt(task, today);
+        const key = `scheduled:${today}T${task.scheduleStart.slice(11, 16)}`;
+        if (scheduledAt && data.occursOn(task, today) && now >= scheduledAt && now - scheduledAt <= SCHEDULE_GRACE_MS && !task.remindersSent.includes(key)) {
+          task.remindersSent.push(key); changed = true;
+          showNotice('Task scheduled now', task.task, true);
+        }
+      }
+      if (!task.reminderMinutes) continue;
+      for (const date of [today, tomorrow]) {
+        if (!data.occursOn(task, date)) continue;
+        const startAt = dueAt(task, date) || new Date(`${date}T09:00:00`);
+        const reminderAt = new Date(startAt.getTime() - task.reminderMinutes * 60000);
+        const key = `${date}T${task.scheduleStart ? task.scheduleStart.slice(11, 16) : '09:00'}`;
+        if (now < reminderAt || now >= startAt || task.remindersSent.includes(key)) continue;
+        task.remindersSent.push(key); changed = true;
+        const mins = task.reminderMinutes >= 60 ? `${task.reminderMinutes / 60} hour${task.reminderMinutes > 60 ? 's' : ''}` : `${task.reminderMinutes} minutes`;
+        const message = `Starting in ${mins}: ${task.task}`;
+        const NotificationApi = window.Notification;
+        if (NotificationApi && NotificationApi.permission === 'granted') {
+          try {
+            const notification = new NotificationApi('Task reminder', { body: message, tag: `task-${task.id}-${key}` });
+            notification.onclick = () => { window.focus(); window.location.href = 'calendar.html'; };
+          } catch (_) { showNotice('Task reminder', message); }
+        } else showNotice('Task reminder', message);
+      }
+    }
+    if (changed) data.saveTasks(tasks);
+  }
+  checkReminders();
   window.setInterval(checkReminders, 15000);
   window.addEventListener('focus', checkReminders);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) checkReminders(); });

@@ -204,12 +204,14 @@
   document.getElementById('prevRange').addEventListener('click', () => { offsetDays -= mode === 'today' ? 1 : 5; render(); });
   document.getElementById('nextRange').addEventListener('click', () => { offsetDays += mode === 'today' ? 1 : 5; render(); });
   document.getElementById('todayBtn').addEventListener('click', () => { offsetDays = 0; render(); });
+  document.getElementById('themeToggle')?.addEventListener('click', event => { event.preventDefault(); const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; localStorage.setItem('theme', next); });
+  const profile = document.querySelector('.user-profile span'); if (profile) profile.textContent = data.user;
+  const avatar = document.querySelector('.user-profile img'); if (avatar) avatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(data.user)}&background=6366f1&color=fff`;
   let trackedToday = data.todayKey();
   setInterval(() => {
     const currentDay = data.todayKey();
     if (currentDay !== trackedToday) { trackedToday = currentDay; if (offsetDays === 0) render(); }
     document.querySelectorAll('.current-time-indicator').forEach(line => { const now = today(); line.style.top = `${(now.getHours() * 60 + now.getMinutes()) / 60 * HOUR_PX}px`; });
   }, 60000);
-  window.addEventListener('tracker:data-ready', render);
-  data.ready.then(connected => { if (connected) render(); });
+  render();
 })();

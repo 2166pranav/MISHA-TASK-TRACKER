@@ -1,54 +1,56 @@
-'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { makeFixture, agentFor, register } = require('./helpers.cjs');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const path = require('node:path');
 
-async function accountAt(now) {
-  let current = new Date(now);
-  const fixture = makeFixture({ now: () => new Date(current) });
-  const agent = agentFor(fixture.app); await register(agent);
-  return { ...fixture, agent, setNow: value => { current = new Date(value); } };
+function fixture(points = 20) {
+  const values = new Map([
+    ['currentUser', 'Guest'],
+    ['tp-Guest:rewards', JSON.stringify({ points })]
+  ]);
+  const localStorage = { getItem: key => values.has(key) ? values.get(key) : null, setItem: (key, value) => values.set(key, String(value)), removeItem: key => values.delete(key) };
+  const window = {};
+  vm.runInNewContext(fs.readFileSync(path.resolve(__dirname, '..', 'tracker-data.js'), 'utf8'), { window, localStorage, Date, Math, Number, String, Boolean, Array, encodeURIComponent });
+  return { data: window.TrackerData, localStorage };
 }
+const key = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-test('a missed timed occurrence deducts five Karma once and writes an audit history entry', async t => {
-  const fixture = await accountAt('2026-10-05T12:00:00'); t.after(fixture.cleanup);
-  await fixture.agent.put('/api/rewards').send({ rewards: { points: 12 } });
-  await fixture.agent.put('/api/tasks').send({ tasks: [{ id: 101, task: 'Overdue meeting', dueDate: '2026-10-05', scheduleStart: '2026-10-05T09:00', completed: false, status: 'todo' }] });
-  const first = await fixture.agent.post('/api/reminders/check').send({});
-  assert.equal(first.status, 200);
-  assert.equal(first.body.karma, 7);
-  assert.equal(first.body.events.filter(event => event.kind === 'penalty').length, 1);
-  assert.match((await fixture.agent.get('/api/history')).body.history[0].text, /−5 Karma/);
-  const second = await fixture.agent.post('/api/reminders/check').send({});
-  assert.equal(second.body.karma, 7);
-  assert.equal(second.body.events.filter(event => event.kind === 'penalty').length, 0);
+test('a timed task loses five Karma once after its scheduled start and is audited', () => {
+  const { data } = fixture(12);
+  const task = { id: 101, task: 'Overdue meeting', dueDate: '2026-10-02', scheduleStart: '2026-10-02T09:00', completed: false, status: 'todo' };
+  const now = new Date(2026, 9, 2, 9, 1);
+  assert.equal(data.applyMissedTaskPenalties([task], now).length, 1);
+  assert.equal(data.getKarma(), 7);
+  assert.equal(data.loadHistory().filter(entry => entry.action === 'karma').length, 1);
+  assert.equal(data.applyMissedTaskPenalties([task], now).length, 0);
+  assert.equal(data.getKarma(), 7);
 });
 
-test('recurring missed occurrences are charged separately and the total never becomes negative', async t => {
-  const fixture = await accountAt('2026-10-05T12:00:00'); t.after(fixture.cleanup);
-  await fixture.agent.put('/api/rewards').send({ rewards: { points: 6 } });
-  await fixture.agent.put('/api/tasks').send({ tasks: [{ id: 104, task: 'Every other day', dueDate: '2026-10-03', scheduleStart: '2026-10-03T08:00', recurrence: { kind: 'interval', intervalDays: 2, startDate: '2026-10-03' } }] });
-  const result = await fixture.agent.post('/api/reminders/check').send({});
-  const missed = result.body.events.filter(event => event.kind === 'penalty');
-  assert.deepEqual(missed.map(event => event.date), ['2026-10-03', '2026-10-05']);
-  assert.deepEqual(missed.map(event => event.deducted), [5, 1]);
-  assert.equal(result.body.karma, 0);
-  assert.equal((await fixture.agent.get('/api/history')).body.history.filter(item => item.action === 'karma').length, 2);
+test('late completion is penalized but completion before deadline is not', () => {
+  const { data } = fixture(20);
+  const late = { id: 102, task: 'Completed late', dueDate: '2026-10-02', scheduleStart: '2026-10-02T09:00', completed: true, status: 'done', completedAt: new Date(2026, 9, 2, 9, 5).toISOString() };
+  const onTime = { id: 103, task: 'Completed on time', dueDate: '2026-10-02', scheduleStart: '2026-10-02T10:00', completed: true, status: 'done', completedAt: new Date(2026, 9, 2, 9, 59).toISOString() };
+  const penalties = data.applyMissedTaskPenalties([late, onTime], new Date(2026, 9, 2, 12));
+  assert.equal(penalties.length, 1);
+  assert.equal(penalties[0].taskId, 102);
+  assert.equal(data.getKarma(), 15);
 });
 
-test('late completion is penalized, on-time completion is not, and all-day tasks wait until date end', async t => {
-  const fixture = await accountAt('2026-10-05T12:00:00'); t.after(fixture.cleanup);
-  await fixture.agent.put('/api/rewards').send({ rewards: { points: 20 } });
-  await fixture.agent.put('/api/tasks').send({ tasks: [
-    { id: 102, task: 'Completed late', dueDate: '2026-10-05', scheduleStart: '2026-10-05T09:00', completed: true, status: 'done', completedAt: '2026-10-05T09:05:00' },
-    { id: 103, task: 'Completed on time', dueDate: '2026-10-05', scheduleStart: '2026-10-05T10:00', completed: true, status: 'done', completedAt: '2026-10-05T09:59:00' },
-    { id: 105, task: 'All-day task', dueDate: '2026-10-05', allDay: true }
-  ] });
-  const today = await fixture.agent.post('/api/reminders/check').send({});
-  assert.equal(today.body.karma, 15);
-  assert.deepEqual(today.body.events.filter(event => event.kind === 'penalty').map(event => event.task), ['Completed late']);
-  fixture.setNow('2026-10-06T00:01:00');
-  const nextDay = await fixture.agent.post('/api/reminders/check').send({});
-  assert.equal(nextDay.body.karma, 10);
-  assert.ok(nextDay.body.events.some(event => event.kind === 'penalty' && event.task === 'All-day task'));
+test('recurring missed occurrences are charged separately and Karma cannot go below zero', () => {
+  const { data } = fixture(6);
+  const task = { id: 104, task: 'Every other day', dueDate: '2026-10-03', scheduleStart: '2026-10-03T08:00', completed: false, status: 'todo', recurrence: { kind: 'interval', intervalDays: 2, startDate: '2026-10-03' } };
+  const penalties = data.applyMissedTaskPenalties([task], new Date(2026, 9, 5, 12));
+  assert.deepEqual(Array.from(penalties, item => item.date), ['2026-10-03', '2026-10-05']);
+  assert.equal(data.getKarma(), 0);
+  assert.equal(data.applyMissedTaskPenalties([task], new Date(2026, 9, 5, 12)).length, 0);
+  assert.equal(data.loadHistory().filter(entry => entry.action === 'karma').length, 2);
+});
+
+test('all-day tasks are not penalized until the local due date ends', () => {
+  const { data } = fixture(10);
+  const task = { id: 105, task: 'All day task', dueDate: '2026-10-03', scheduleStart: '', completed: false, status: 'todo' };
+  assert.equal(data.applyMissedTaskPenalties([task], new Date(2026, 9, 3, 12)).length, 0);
+  assert.equal(data.applyMissedTaskPenalties([task], new Date(2026, 9, 4, 0, 1)).length, 1);
+  assert.equal(data.getKarma(), 5);
 });

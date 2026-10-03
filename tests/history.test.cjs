@@ -1,32 +1,39 @@
-'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { makeFixture, agentFor, register } = require('./helpers.cjs');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const path = require('node:path');
 
-test('selective history deletion preserves unselected entries and active tasks', async t => {
-  const fixture = makeFixture(); t.after(fixture.cleanup);
-  const agent = agentFor(fixture.app); await register(agent);
-  const tasks = [{ id: 'keep-task', task: 'Keep this task', dueDate: '2026-10-03' }];
-  const history = [
-    { id: 'h1', at: '2026-10-01T10:00:00.000Z', action: 'created', text: 'Keep log' },
-    { id: 'h2', at: '2026-10-02T10:00:00.000Z', action: 'deleted', text: 'Delete log' }
-  ];
-  await agent.put('/api/tasks').send({ tasks }); await agent.put('/api/history').send({ history });
-  const deleted = await agent.delete('/api/history').send({ ids: ['h2'] });
-  assert.equal(deleted.status, 200);
-  assert.deepEqual(deleted.body.history.map(item => item.id), ['h1']);
-  assert.deepEqual((await agent.get('/api/tasks')).body.tasks.map(item => item.id), ['keep-task']);
+test('clearHistory removes activity log storage without modifying tasks or other user data', () => {
+  const values = new Map([
+    ['currentUser', 'Guest'],
+    ['tp-tasks:Guest', JSON.stringify([{ id: 1, task: 'Keep this task' }])],
+    ['tp-Guest:history', JSON.stringify([{ id: 'h1', action: 'created', text: 'Created test task' }])],
+    ['tp-Guest:folders', JSON.stringify(['Work'])]
+  ]);
+  const localStorage = { getItem: key => values.has(key) ? values.get(key) : null, setItem: (key, value) => values.set(key, String(value)), removeItem: key => values.delete(key) };
+  const window = {};
+  vm.runInNewContext(fs.readFileSync(path.resolve(__dirname, '..', 'tracker-data.js'), 'utf8'), { window, localStorage, Date, Math, Number, String, Boolean, Array, encodeURIComponent });
+  const data = window.TrackerData;
+  assert.equal(data.loadHistory().length, 1);
+  data.clearHistory();
+  assert.equal(values.has(data.keys.history), false);
+  assert.equal(data.loadHistory().length, 0);
+  assert.equal(data.loadTasks()[0].task, 'Keep this task');
+  assert.deepEqual(Array.from(data.loadFolders()), ['Work']);
 });
 
-test('clear history removes only the signed-in user activity log', async t => {
-  const fixture = makeFixture(); t.after(fixture.cleanup);
-  const alice = agentFor(fixture.app), bob = agentFor(fixture.app);
-  await register(alice, 'alice@example.com', 'Alice'); await register(bob, 'bob@example.com', 'Bob');
-  await alice.put('/api/tasks').send({ tasks: [{ id: 1, task: 'Preserved task' }] });
-  await alice.put('/api/history').send({ history: [{ id: 'alice-history', action: 'created', text: 'Alice log' }] });
-  await bob.put('/api/history').send({ history: [{ id: 'bob-history', action: 'created', text: 'Bob log' }] });
-  assert.equal((await alice.delete('/api/history').send({})).status, 200);
-  assert.deepEqual((await alice.get('/api/history')).body.history, []);
-  assert.equal((await alice.get('/api/tasks')).body.tasks[0].task, 'Preserved task');
-  assert.deepEqual((await bob.get('/api/history')).body.history.map(item => item.id), ['bob-history']);
+test('deleteHistoryEntries removes selected logs only and preserves tasks plus unselected history', () => {
+  const values = new Map([
+    ['currentUser', 'Guest'],
+    ['tp-tasks:Guest', JSON.stringify([{ id: 1, task: 'Keep this task' }])],
+    ['tp-Guest:history', JSON.stringify([{ id: 'h1', at: '2026-10-01T10:00:00.000Z', action: 'created', text: 'Keep log' }, { id: 'h2', at: '2026-10-02T10:00:00.000Z', action: 'deleted', text: 'Delete log' }])]
+  ]);
+  const localStorage = { getItem: key => values.has(key) ? values.get(key) : null, setItem: (key, value) => values.set(key, String(value)), removeItem: key => values.delete(key) };
+  const window = {};
+  vm.runInNewContext(fs.readFileSync(path.resolve(__dirname, '..', 'tracker-data.js'), 'utf8'), { window, localStorage, Date, Math, Number, String, Boolean, Array, encodeURIComponent });
+  const data = window.TrackerData;
+  assert.equal(data.deleteHistoryEntries(['h2']), 1);
+  assert.deepEqual(Array.from(data.loadHistory(), entry => entry.id), ['h1']);
+  assert.equal(data.loadTasks()[0].task, 'Keep this task');
 });

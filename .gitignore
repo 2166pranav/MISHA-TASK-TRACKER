@@ -1,9 +1,1 @@
 .vercel
-
-# Local runtime state — keep user accounts, sessions, and uploads out of Git
-node_modules/
-.tracker-data/
-uploads/avatars/*
-.env
-.env.*
-!.env.example

@@ -1,36 +1,60 @@
-'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { makeFixture, agentFor, register } = require('./helpers.cjs');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const path = require('node:path');
 
-async function reminderFixture(dateTime, tasks) {
-  const fixture = makeFixture({ now: () => new Date(dateTime) });
-  const agent = agentFor(fixture.app); await register(agent);
-  await agent.put('/api/tasks').send({ tasks });
-  return { ...fixture, agent };
+const source = fs.readFileSync(path.resolve(__dirname, '..', 'reminders.js'), 'utf8');
+function dateKey(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; }
+function reminderFixture(tasks) {
+  const notices = [];
+  const container = { appendChild(child) { notices.push(child); } };
+  const makeElement = tag => ({ tag, className: '', textContent: '', children: [], attrs: {}, listeners: {}, setAttribute(k, v) { this.attrs[k] = v; }, addEventListener(k, fn) { this.listeners[k] = fn; }, append(...nodes) { this.children.push(...nodes); }, remove() { this.removed = true; } });
+  const document = { hidden: false, getElementById: id => id === 'toast-container' ? container : null, createElement: makeElement, body: { appendChild() {} }, addEventListener() {} };
+  const data = { loadTasks: () => tasks, saveTasks: next => { tasks.splice(0, tasks.length, ...next); }, todayKey: dateKey, occursOn: (task, date) => task.dueDate === date, applyMissedTaskPenalties: () => [] };
+  let tick = () => {};
+  let tones = 0;
+  class AudioMock {
+    constructor() { this.currentTime = 0; this.destination = {}; }
+    createOscillator() { return { frequency: {}, connect() {}, start() { tones += 1; }, stop() {} }; }
+    createGain() { return { gain: { setValueAtTime() {}, exponentialRampToValueAtTime() {} }, connect() {} }; }
+    close() { return Promise.resolve(); }
+  }
+  const window = { TrackerData: data, AudioContext: AudioMock, setInterval(callback) { tick = callback; return 1; }, setTimeout() {}, addEventListener() {}, focus() {} };
+  vm.runInNewContext(source, { window, document, setTimeout() {}, Date, String, Number, Array });
+  return { tasks, notices, tick, toneCount: () => tones };
+}
+function baseTask(overrides = {}) {
+  const now = new Date();
+  return { id: 51, task: 'Reminder test', dueDate: dateKey(now), scheduleStart: `${dateKey(now)}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`, reminderMinutes: 0, remindersSent: [], completed: false, status: 'todo', recurrence: null, ...overrides };
 }
 
-test('scheduled-time event is returned once per task occurrence and persisted', async t => {
-  const fixture = await reminderFixture('2026-10-05T09:00:00', [{ id: 51, task: 'Reminder test', dueDate: '2026-10-05', scheduleStart: '2026-10-05T09:00', remindersSent: [] }]); t.after(fixture.cleanup);
-  const first = await fixture.agent.post('/api/reminders/check').send({});
-  assert.ok(first.body.events.some(event => event.kind === 'scheduled' && event.task === 'Reminder test'));
-  const stored = (await fixture.agent.get('/api/tasks')).body.tasks[0];
-  assert.ok(stored.remindersSent.includes('scheduled:2026-10-05T09:00'));
-  const second = await fixture.agent.post('/api/reminders/check').send({});
-  assert.equal(second.body.events.filter(event => event.kind === 'scheduled').length, 0);
+test('scheduled-time alert is prominent and persisted once per task occurrence', () => {
+  const fixture = reminderFixture([baseTask()]);
+  assert.equal(fixture.notices.length, 1);
+  assert.equal(fixture.notices[0].className, 'toast task-reminder-toast');
+  assert.equal(fixture.notices[0].attrs.role, 'alert');
+  assert.equal(fixture.notices[0].children[0].textContent, 'Task scheduled now');
+  assert.equal(fixture.notices[0].children[1].textContent, 'Reminder test');
+  assert.equal(fixture.tasks[0].remindersSent.length, 1);
+  assert.equal(fixture.toneCount(), 2);
+  fixture.tick();
+  assert.equal(fixture.notices.length, 1);
 });
 
-test('lead-time reminder is raised ahead of the scheduled start', async t => {
-  const fixture = await reminderFixture('2026-10-05T08:30:00', [{ id: 52, task: 'Upcoming call', dueDate: '2026-10-05', scheduleStart: '2026-10-05T09:00', reminderMinutes: 30 }]); t.after(fixture.cleanup);
-  const result = await fixture.agent.post('/api/reminders/check').send({});
-  assert.ok(result.body.events.some(event => event.kind === 'lead' && /Starting in 30 minutes: Upcoming call/.test(event.message)));
+test('lead-time reminder remains supported with an in-app notification', () => {
+  const future = new Date(Date.now() + 20 * 60000);
+  const task = baseTask({ dueDate: dateKey(future), scheduleStart: `${dateKey(future)}T${String(future.getHours()).padStart(2, '0')}:${String(future.getMinutes()).padStart(2, '0')}`, reminderMinutes: 30, remindersSent: [] });
+  const fixture = reminderFixture([task]);
+  assert.equal(fixture.notices.length, 1);
+  assert.match(fixture.notices[0].textContent, /Starting in 30 minutes: Reminder test/);
+  assert.equal(task.remindersSent.length, 1);
 });
 
-test('stale start alerts are not replayed and completed tasks do not receive reminders', async t => {
-  const fixture = await reminderFixture('2026-10-05T09:20:00', [
-    { id: 53, task: 'Stale start', dueDate: '2026-10-05', scheduleStart: '2026-10-05T09:00' },
-    { id: 54, task: 'Done task', dueDate: '2026-10-05', scheduleStart: '2026-10-05T09:20', completed: true, status: 'done', reminderMinutes: 30 }
-  ]); t.after(fixture.cleanup);
-  const result = await fixture.agent.post('/api/reminders/check').send({});
-  assert.equal(result.body.events.filter(event => event.kind === 'scheduled' || event.kind === 'lead').length, 0);
+test('old scheduled events outside the catch-up window and completed tasks do not alert', () => {
+  const old = new Date(Date.now() - 20 * 60000);
+  const stale = baseTask({ scheduleStart: `${dateKey(old)}T${String(old.getHours()).padStart(2, '0')}:${String(old.getMinutes()).padStart(2, '0')}` });
+  const done = baseTask({ id: 52, task: 'Done task', completed: true });
+  const fixture = reminderFixture([stale, done]);
+  assert.equal(fixture.notices.length, 0);
 });

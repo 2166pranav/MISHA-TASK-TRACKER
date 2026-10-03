@@ -1,4 +1,4 @@
-/* Task page interactions. TrackerData persists records through the local API. */
+/* Task page interactions. Persistent records live in TrackerData (localStorage). */
 (() => {
   const data = window.TrackerData;
   const tasks = data.loadTasks();
@@ -15,7 +15,6 @@
   let showFutureOccurrences = true;
   const $ = id => document.getElementById(id);
   const taskList = $('taskList');
-  const requestedScope = new URLSearchParams(window.location.search).get('scope');
 
   const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
   const dateLabel = value => {
@@ -129,9 +128,7 @@
     const occurrenceTask = dueDate === task.dueDate ? task : { ...task, dueDate };
     const labelMatch = !label || (label.startsWith('category:') ? task.category === label.slice(9) : label.startsWith('folder:') ? task.folder === label.slice(7) : label.startsWith('label:') ? taskLabels.includes(label.slice(6)) : true);
     const dueMatch = !dueFilter || (dueFilter === 'today' ? dueDate === today : dueFilter === 'tomorrow' ? dueDate === tomorrow : dueFilter === 'this-week' ? Boolean(dueDate && dueDate >= data.todayKey(weekStart) && dueDate <= data.todayKey(weekEnd)) : dueFilter === 'overdue' ? Boolean(dueDate && dueDate < today && !isDone(task)) : dueFilter === 'none' ? !dueDate : dueFilter === 'custom' ? (!customDate || dueDate === customDate) : true);
-    const scopedIds = data.scopeTaskIds;
-    const scopeMatch = !scopedIds || scopedIds.has(String(task.id));
-    return scopeMatch && (!query || `${task.task} ${task.description} ${task.category} ${task.folder} ${task.assignee || ''} ${taskLabels.join(' ')}`.toLowerCase().includes(query)) &&
+    return (!query || `${task.task} ${task.description} ${task.category} ${task.folder} ${task.assignee || ''} ${taskLabels.join(' ')}`.toLowerCase().includes(query)) &&
       (!$('filterPriority').value || task.priority === $('filterPriority').value) &&
       (!assignee || (assignee === 'unassigned' ? !task.assignee : String(task.assignee || '') === assignee.slice(9))) &&
       labelMatch && dueMatch &&
@@ -442,15 +439,12 @@
     recognition.onend = () => { $('voiceInputBtn').classList.remove('recording'); $('voiceHint').textContent = 'Voice input works in supported browsers (usually Chrome).'; };
     recognition.start();
   });
+  const theme = $('themeToggle'); theme?.addEventListener('click', event => { event.preventDefault(); const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; localStorage.setItem('theme', next); });
   window.addEventListener('tracker:karma-updated', updateSummary);
-  window.addEventListener('tracker:data-ready', () => { renderFolderChips(); syncFolders(); render(); });
-  setLayout('list');
-  data.ready.then(connected => {
-    if (!connected) return;
-    const heading = document.querySelector('.task-page-heading h1');
-    if (heading && requestedScope === 'today') heading.textContent = 'Today';
-    if (heading && requestedScope === 'upcoming') heading.textContent = 'Upcoming';
-    const requestedEdit = Number(new URLSearchParams(window.location.search).get('edit'));
-    if (requestedEdit) openEdit(requestedEdit);
-  });
+  window.addEventListener('storage', event => { if (!event.key || event.key === data.keys.rewards) updateSummary(); });
+  const profile = document.querySelector('.user-profile span'); if (profile) profile.textContent = data.user;
+  const avatar = document.querySelector('.user-profile img'); if (avatar) avatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(data.user)}&background=6366f1&color=fff`;
+  renderFolderChips(); syncFolders(); setLayout('list'); render();
+  const requestedEdit = Number(new URLSearchParams(window.location.search).get('edit'));
+  if (requestedEdit) openEdit(requestedEdit);
 })();

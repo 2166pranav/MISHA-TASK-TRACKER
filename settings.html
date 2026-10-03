@@ -3,82 +3,189 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Task Tracker | Profile Settings</title>
+  <title>Task Tracker | Settings</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="home.css">
   <link rel="stylesheet" href="features.css">
   <script src="theme.js"></script>
+  <style>
+    .settings-section {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .settings-section h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .settings-row:last-child {
+      border-bottom: none;
+    }
+    .settings-info h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .settings-info p {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+  </style>
 </head>
-<body data-tracker-view="settings">
+<body>
   <aside class="sidebar">
-    <a href="dashboard.html" class="sidebar-brand"><span class="material-icons brand-icon">check_circle</span><h2>Tasker</h2></a>
+    <a href="index.html" class="sidebar-brand" style="text-decoration: none; color: inherit;">
+      <span class="material-icons brand-icon">check_circle</span>
+      <h2>Tasker</h2>
+    </a>
     <ul class="sidebar-nav">
-      <li><a href="dashboard.html"><span class="material-icons">dashboard</span> Dashboard</a></li>
-      <li><a href="tasks.html?scope=today"><span class="material-icons">today</span> Today</a></li>
-      <li><a href="tasks.html?scope=upcoming"><span class="material-icons">upcoming</span> Upcoming</a></li>
+      <li><a href="home.html"><span class="material-icons">dashboard</span> Dashboard</a></li>
       <li><a href="tasks.html"><span class="material-icons">task</span> All Tasks</a></li>
       <li><a href="calendar.html"><span class="material-icons">calendar_today</span> Calendar</a></li>
-      <li><a href="group-tasks.html"><span class="material-icons">groups</span> Group Tasks</a></li>
       <li><a href="history.html"><span class="material-icons">history</span> History</a></li>
-      <li><a href="settings.html" class="active" aria-current="page"><span class="material-icons">settings</span> Settings</a></li>
+      <li><a href="settings.html" class="active"><span class="material-icons">settings</span> Settings</a></li>
     </ul>
-    <div class="sidebar-bottom"><a href="#" id="themeToggle"><span class="material-icons">dark_mode</span> Theme</a></div>
+    <div class="sidebar-bottom">
+      <a href="#" id="themeToggle"><span class="material-icons">dark_mode</span> Theme</a>
+    </div>
   </aside>
 
   <main class="main-content">
     <header class="dashboard-header">
-      <div class="search-bar"><span class="material-icons">manage_accounts</span><span>Profile settings</span></div>
-      <div class="header-actions"><a href="settings.html" class="user-profile" title="Profile settings"><img src="/assets/default-avatar.svg" alt="User profile picture"><span>User</span></a></div>
+      <div class="search-bar">
+        <span class="material-icons">search</span>
+        <input type="text" placeholder="Search tasks...">
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn"><span class="material-icons">notifications</span></button>
+        <a href="login.html" class="user-profile" title="Login / Sign Up">
+          <img src="https://ui-avatars.com/api/?name=Guest&background=6366f1&color=fff" alt="User">
+          <span>Guest</span>
+        </a>
+      </div>
     </header>
 
-    <div class="dashboard-container settings-container">
-      <div class="dashboard-greeting"><div><h1>Profile Settings</h1><p>Manage your account, profile picture, and local task data.</p></div></div>
+    <div class="dashboard-container" style="max-width: 800px;">
+      <div class="dashboard-greeting" style="margin-bottom: 24px;">
+        <div>
+          <h1 style="font-size: 24px;">Settings</h1>
+          <p>Manage your account preferences and data.</p>
+        </div>
+      </div>
 
-      <section class="settings-section profile-settings-section">
-        <h2>Personal details</h2>
-        <form id="profileForm">
-          <div class="profile-editor-header">
-            <img id="profileAvatarPreview" src="/assets/default-avatar.svg" alt="Profile picture preview">
-            <div><strong id="profileDisplayName" data-profile-name>User</strong><p>PNG, JPEG or WebP · maximum 5 MB</p></div>
-            <label for="profileAvatarFile" class="btn-secondary avatar-upload-label"><span class="material-icons">photo_camera</span> Change photo</label>
-            <input id="profileAvatarFile" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+      <div class="settings-section">
+        <h3>Preferences</h3>
+        <div class="settings-row">
+          <div class="settings-info">
+            <h4>Dark Mode</h4>
+            <p>Toggle between light and dark themes.</p>
           </div>
-          <div class="profile-form-grid">
-            <div class="form-group"><label for="profileName">Name</label><input class="form-control" id="profileName" name="name" type="text" minlength="2" maxlength="80" autocomplete="name" required></div>
-            <div class="form-group"><label for="profileEmail">Email</label><input class="form-control" id="profileEmail" name="email" type="email" maxlength="254" autocomplete="email" required></div>
+          <button class="btn-secondary" id="toggleThemeBtn">Toggle Theme</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>Account</h3>
+        <div class="settings-row">
+          <div class="settings-info">
+            <h4>Sign Out</h4>
+            <p>Switch to a different profile.</p>
           </div>
-          <div class="profile-password-heading"><h3>Change password</h3><p>Leave these fields blank if you do not want to change it. A new password must be at least 10 characters.</p></div>
-          <div class="profile-form-grid">
-            <div class="form-group"><label for="currentPassword">Current password</label><input class="form-control" id="currentPassword" name="currentPassword" type="password" autocomplete="current-password"></div>
-            <div class="form-group"><label for="newPassword">New password</label><input class="form-control" id="newPassword" name="newPassword" type="password" minlength="10" maxlength="128" autocomplete="new-password"></div>
-            <div class="form-group"><label for="confirmNewPassword">Confirm new password</label><input class="form-control" id="confirmNewPassword" name="confirmNewPassword" type="password" minlength="10" maxlength="128" autocomplete="new-password"></div>
+          <button class="btn-secondary" id="signOutBtn">Sign Out</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>Data Management</h3>
+        <div class="settings-row">
+          <div class="settings-info">
+            <h4>Export Data</h4>
+              <p>Download a JSON backup of tasks, folders, history, and Karma.</p>
           </div>
-          <div class="profile-form-footer"><p id="profileStatus" class="profile-status" role="status" aria-live="polite"></p><button class="btn-primary" id="saveProfileBtn" type="submit"><span class="material-icons">save</span> Save profile</button></div>
-        </form>
-      </section>
+          <button class="btn-primary" id="exportDataBtn">Export JSON</button>
+        </div>
+        <div class="settings-row">
+          <div class="settings-info">
+            <h4>Clear All Data</h4>
+            <p style="color: var(--red);">Permanently delete all tasks and settings.</p>
+          </div>
+          <button class="btn-danger" id="clearDataBtn">Clear Data</button>
+        </div>
+      </div>
 
-      <section class="settings-section">
-        <h2>Preferences</h2>
-        <div class="settings-row"><div class="settings-info"><h3>Dark mode</h3><p>Toggle between light and dark themes. This preference is stored in a first-party cookie.</p></div><button class="btn-secondary" id="toggleThemeBtn" type="button">Toggle Theme</button></div>
-      </section>
-
-      <section class="settings-section">
-        <h2>Account</h2>
-        <div class="settings-row"><div class="settings-info"><h3>Sign out</h3><p>End this session on this device.</p></div><button class="btn-secondary" id="signOutBtn" type="button">Sign Out</button></div>
-      </section>
-
-      <section class="settings-section">
-        <h2>Data management</h2>
-        <div class="settings-row"><div class="settings-info"><h3>Export data</h3><p>Download a JSON backup of your profile, tasks, folders, history, group members, and Karma.</p></div><button class="btn-primary" id="exportDataBtn" type="button">Export JSON</button></div>
-        <div class="settings-row"><div class="settings-info"><h3>Clear workspace data</h3><p class="danger-copy">Permanently delete this account's tasks, folders, history, group members, and Karma. Your account remains active.</p></div><button class="btn-danger" id="clearDataBtn" type="button">Clear workspace</button></div>
-      </section>
     </div>
   </main>
 
-  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
   <script src="tracker-data.js"></script>
-  <script src="profile.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const themeToggle = document.getElementById("themeToggle");
+      const toggleThemeBtn = document.getElementById("toggleThemeBtn");
+      
+      const toggleTheme = (e) => {
+        if(e) e.preventDefault();
+        const currentTheme = document.documentElement.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+      };
+
+      if (themeToggle) themeToggle.addEventListener("click", toggleTheme);
+      if (toggleThemeBtn) toggleThemeBtn.addEventListener("click", toggleTheme);
+
+      const currentUser = localStorage.getItem("currentUser") || "Guest";
+      const taskStorageKey = `tp-tasks:${encodeURIComponent(currentUser)}`;
+
+      const profileSpan = document.querySelector('.user-profile span');
+      const profileImg = document.querySelector('.user-profile img');
+      if (profileSpan) profileSpan.textContent = currentUser;
+      if (profileImg) profileImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser)}&background=6366f1&color=fff`;
+
+      document.getElementById('signOutBtn').addEventListener('click', () => {
+        localStorage.removeItem('currentUser');
+        window.location.href = 'login.html';
+      });
+
+      document.getElementById('exportDataBtn').addEventListener('click', () => {
+        const data = {
+          exportedAt: new Date().toISOString(),
+          tasks: JSON.parse(localStorage.getItem(taskStorageKey) || "[]"),
+          folders: JSON.parse(localStorage.getItem(TrackerData.keys.folders) || "[]"),
+          history: JSON.parse(localStorage.getItem(TrackerData.keys.history) || "[]"),
+          rewards: JSON.parse(localStorage.getItem(TrackerData.keys.rewards) || "{}")
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "tasks_backup.json";
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      document.getElementById('clearDataBtn').addEventListener('click', () => {
+        if(confirm("Are you absolutely sure you want to delete all tasks? This cannot be undone.")) {
+          localStorage.setItem(taskStorageKey, "[]");
+          localStorage.removeItem(TrackerData.keys.folders);
+          localStorage.removeItem(TrackerData.keys.history);
+          localStorage.removeItem(TrackerData.keys.rewards);
+          alert("All data cleared successfully.");
+        }
+      });
+    });
+  </script>
   <script src="reminders.js"></script>
 </body>
 </html>
