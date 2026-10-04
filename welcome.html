@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#713da7">
+  <meta name="description" content="Sign in or create a Coreetz account to plan your next steps.">
+  <title>Coreetz | Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="assets/login-starry-illustration.webp" fetchpriority="high">
+  <link rel="stylesheet" href="landing.css">
+</head>
+<body class="night-login-page">
+  <main class="page-shell">
+    <article class="login-card" aria-label="Coreetz login">
+      <section class="illustration-side" aria-label="Coreetz illustration">
+        <div class="brand-row">
+          <button class="menu-button" id="brandMenuButton" type="button" aria-label="Open quick links" aria-expanded="false" aria-controls="brandMenu">
+            <span></span><span></span><span></span>
+          </button>
+          <a class="brand-lockup" href="index.html" aria-label="Task Tracker home">
+            <img class="brand-mark" src="assets/task-bread-logo.svg" alt="" width="48" height="40">
+            <span class="brand-word">Task Tracker</span>
+          </a>
+          <nav class="brand-menu" id="brandMenu" aria-label="Quick links" hidden>
+            <a href="home.html">Dashboard</a>
+            <a href="tasks.html">Tasks</a>
+          </nav>
+        </div>
+
+        <div class="illustration-wrap">
+          <img class="hero-illustration" src="assets/login-starry-illustration.webp" alt="A girl with round glasses and white earphones types on her laptop beneath a crescent moon, constellations, and a spiral galaxy, with a floating task list, coffee, cactus, and Pomodoro timer." width="960" height="1200">
+        </div>
+      </section>
+
+      <section class="form-side" aria-labelledby="loginHeading">
+        <div class="form-content">
+          <div class="avatar" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="presentation">
+              <circle cx="32" cy="32" r="32" fill="#e8e8ed"/>
+              <circle cx="32" cy="24" r="10" fill="#a3a3ad"/>
+              <path d="M13 55c1.8-11 9-17 19-17s17.2 6 19 17" fill="#a3a3ad"/>
+            </svg>
+          </div>
+          <p class="form-eyebrow">YOUR NEXT CHAPTER STARTS HERE</p>
+          <h1 id="loginHeading">Welcome back</h1>
+          <p class="form-subtitle">Sign in to pick up where you left off.</p>
+
+          <form id="loginForm" class="login-form">
+            <label class="login-field">
+              <span class="sr-only">Email address</span>
+              <input id="loginUsername" name="email" type="email" placeholder="USERNAME / EMAIL" autocomplete="email" required>
+              <svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.7"/><path d="M4.8 20c.6-3.8 3.1-6 7.2-6s6.6 2.2 7.2 6"/></svg>
+            </label>
+            <div class="login-field">
+              <label class="sr-only" for="loginPassword">Password</label>
+              <input id="loginPassword" name="password" type="password" placeholder="PASSWORD" autocomplete="current-password" required>
+              <button class="password-toggle" type="button" data-password-toggle="loginPassword" aria-controls="loginPassword" aria-label="Show password" aria-pressed="false">Show</button>
+            </div>
+
+            <div class="form-options">
+              <label class="option-item" for="rememberMe">
+                <input id="rememberMe" type="checkbox" checked>
+                <span class="radio-mark" aria-hidden="true"></span>
+                <span>Remember me</span>
+              </label>
+              <a class="option-item forgot-link" href="#forgot-password" id="forgotPassword">
+                <span class="radio-mark empty" aria-hidden="true"></span>
+                <span>Forgot Password</span>
+              </a>
+            </div>
+
+            <button class="login-button" type="submit">LOGIN</button>
+          </form>
+          <form id="signupForm" class="login-form" hidden>
+            <label class="login-field"><span class="sr-only">Full name</span><input id="signupName" name="name" type="text" placeholder="YOUR NAME" autocomplete="name" minlength="2" maxlength="80" required><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.7"/><path d="M4.8 20c.6-3.8 3.1-6 7.2-6s6.6 2.2 7.2 6"/></svg></label>
+            <label class="login-field"><span class="sr-only">Email address</span><input id="signupEmail" name="email" type="email" placeholder="EMAIL ADDRESS" autocomplete="email" required><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></label>
+            <div class="login-field"><label class="sr-only" for="signupPassword">Password</label><input id="signupPassword" name="password" type="password" placeholder="PASSWORD (10+ CHARACTERS)" autocomplete="new-password" minlength="10" maxlength="128" required><button class="password-toggle" type="button" data-password-toggle="signupPassword" aria-controls="signupPassword" aria-label="Show password" aria-pressed="false">Show</button></div>
+            <div class="login-field"><label class="sr-only" for="signupConfirmPassword">Confirm password</label><input id="signupConfirmPassword" name="confirmPassword" type="password" placeholder="CONFIRM PASSWORD" autocomplete="new-password" minlength="10" maxlength="128" required><button class="password-toggle" type="button" data-password-toggle="signupConfirmPassword" aria-controls="signupConfirmPassword" aria-label="Show password" aria-pressed="false">Show</button></div>
+            <button class="login-button" type="submit">CREATE ACCOUNT</button>
+          </form>
+          <p class="form-status" id="loginStatus" role="status" aria-live="polite"></p>
+          <p class="signup-line" id="signupPrompt">Don't have an account yet ? <a href="#create-account" id="createAccount">Create an account</a></p>
+          <p class="signup-line" id="loginPrompt" hidden>Already have an account? <a href="#sign-in" id="showLogin">Sign in</a></p>
+          <p class="demo-note" id="accountNote">Account passwords are securely hashed by the local server. Your existing task data stays in this browser.</p>
+        </div>
+      </section>
+
+      <svg class="card-wave" viewBox="0 0 1200 132" preserveAspectRatio="none" aria-hidden="true">
+        <path class="wave-fill" d="M0 46C112 22 160 87 274 73c102-13 142-61 267-43 110 16 164 62 280 48 128-16 167-75 280-52 47 10 72 27 99 22v84H0Z"/>
+        <path class="wave-star" d="M124 84c2.8-10.7 4.4-12.3 15-15-10.6-2.8-12.2-4.4-15-15-2.8 10.6-4.4 12.2-15 15 10.6 2.7 12.2 4.3 15 15Z"/>
+        <path class="wave-star small" d="M337 114c2-7.7 3.2-8.9 11-11-7.8-2-9-3.2-11-11-2 7.8-3.2 9-11 11 7.8 2.1 9 3.3 11 11Z"/>
+        <path class="wave-star" d="M1015 91c2.8-10.7 4.4-12.3 15-15-10.6-2.8-12.2-4.4-15-15-2.8 10.6-4.4 12.2-15 15 10.6 2.7 12.2 4.3 15 15Z"/>
+        <path class="wave-star small" d="M1108 118c2-7.7 3.2-8.9 11-11-7.8-2-9-3.2-11-11-2 7.8-3.2 9-11 11 7.8 2.1 9 3.3 11 11Z"/>
+      </svg>
+    </article>
+  </main>
+  <script src="landing.js"></script>
+</body>
+</html>
