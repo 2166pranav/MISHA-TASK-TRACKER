@@ -166,7 +166,7 @@ async function createApp(options = {}) {
   await db.initDB();
   const pool = db.getPool();
   
-  const avatarDir = options.avatarDir || process.env.AVATAR_DIR || path.join(ROOT, 'uploads', 'avatars');
+  const avatarDir = options.avatarDir || process.env.AVATAR_DIR || process.env.VERCEL ? '/tmp/avatars' : path.join(ROOT, 'uploads', 'avatars');
   const clock = typeof options.now === 'function' ? options.now : () => new Date();
   fs.mkdirSync(avatarDir, { recursive: true });
   const app = express();
